@@ -1,0 +1,17 @@
+<package>
+  <name>arbotix_controllers</name>
+  <version>0.8.0</version>
+  <description>
+    Extends the arbotix_python package with a number of more sophisticated ROS wrappers for common devices.
+  </description>
+  <author>Michael Ferguson</author>
+  <maintainer email="mike@vanadiumlabs.com">Michael Ferguson</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/arbotix_controllers</url>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>arbotix_python</run_depend>
+  <run_depend>trajectory_msgs</run_depend>
+  <run_depend>tf</run_depend>
+</package>

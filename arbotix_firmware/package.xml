@@ -1,0 +1,13 @@
+<package>
+  <name>arbotix_firmware</name>
+  <version>0.8.0</version>
+  <description>
+    Firmware source code for ArbotiX ROS bindings.
+  </description>
+  <author>Michael Ferguson</author>
+  <maintainer email="mike@vanadiumlabs.com">Michael Ferguson</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/arbotix_firmware</url>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+</package>

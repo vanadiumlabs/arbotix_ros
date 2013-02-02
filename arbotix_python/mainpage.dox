@@ -1,0 +1,11 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+In addition to the ROS API offered by the driver.py node, arbotix_python offers a Python API for interacting with the ArbotiX or other Dynamixel-like devices.
+
+\section ArbotixPythonAPI ArbotiX Python API
+- \link arbotix_python::arbotix::ArbotiX ArbotiX Class API \endlink
+- \link arbotix_python::ax12 Dynamixel register table defintions \endlink
+
+*/

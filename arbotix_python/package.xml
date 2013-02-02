@@ -1,0 +1,26 @@
+<package>
+  <name>arbotix_python</name>
+  <version>0.8.0</version>
+  <description>
+    Bindings and low-level controllers for ArbotiX-powered robots.
+  </description>
+  <author>Michael Ferguson</author>
+  <maintainer email="mike@vanadiumlabs.com">Michael Ferguson</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/arbotix_python</url>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rospy</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>arbotix_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>diagnistic_msgs</run_depend>
+  <run_depend>control_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>python-serial</run_depend>
+</package>
+
+

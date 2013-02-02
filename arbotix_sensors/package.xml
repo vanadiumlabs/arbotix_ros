@@ -1,0 +1,15 @@
+<package>
+  <name>arbotix_sensors</name>
+  <version>0.8.0</version>
+  <description>
+    Extends the arbotix_node package with a number of more sophisticated ROS wrappers for common devices. 
+  </description>
+  <author>Michael Ferguson</author>
+  <maintainer email="mike@vanadiumlabs.com">Michael Ferguson</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/arbotix_sensors</url>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>arbotix_python</run_depend>
+</package>
