@@ -105,14 +105,19 @@ class FollowController(Controller):
 
     def executeTrajectory(self, traj):
         rospy.loginfo("Executing trajectory")
-        rospy.loginfo(traj)
+        rospy.logdebug(traj)
         # carry out trajectory
         try:
             indexes = [traj.joint_names.index(joint) for joint in self.joints]
         except ValueError as val:
+            rospy.logerr("Invalid joint in trajectory.")
             return False
-        time = rospy.Time.now()
+
+        # get starting timestamp, MoveIt uses 0, need to fill in
         start = traj.header.stamp
+        if start.secs == 0 and start.nsecs == 0:
+            start = rospy.Time.now()
+
         r = rospy.Rate(self.rate)
         last = [ self.device.joints[joint].position for joint in self.joints ]
         for point in traj.points:
