@@ -1,6 +1,6 @@
 <package>
   <name>arbotix_python</name>
-  <version>0.8.0</version>
+  <version>0.8.1</version>
   <description>
     Bindings and low-level controllers for ArbotiX-powered robots.
   </description>
