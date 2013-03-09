@@ -16,7 +16,7 @@
   <run_depend>arbotix_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
-  <run_depend>diagnistic_msgs</run_depend>
+  <run_depend>diagnostic_msgs</run_depend>
   <run_depend>control_msgs</run_depend>
   <run_depend>nav_msgs</run_depend>
   <run_depend>actionlib</run_depend>
