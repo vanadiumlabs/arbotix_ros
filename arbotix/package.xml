@@ -7,6 +7,8 @@
   <license>BSD</license>
   <url>http://ros.org/wiki/arbotix</url>
 
+  <buildtool_depend>catkin</buildtool_depend>
+
   <run_depend>arbotix_msgs</run_depend>
   <run_depend>arbotix_python</run_depend>
   <run_depend>arbotix_sensors</run_depend>
