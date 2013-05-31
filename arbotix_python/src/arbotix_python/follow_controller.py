@@ -68,10 +68,13 @@ class FollowController(Controller):
         traj = goal.trajectory
 
         if set(self.joints) != set(traj.joint_names):
-            msg = "Trajectory joint names does not match action controlled joints." + str(traj.joint_names)
-            rospy.logerr(msg)
-            self.server.set_aborted(text=msg)
-            return
+            for j in self.joints:
+                if j not in traj.joint_names:
+                    msg = "Trajectory joint names does not match action controlled joints." + str(traj.joint_names)
+                    rospy.logerr(msg)
+                    self.server.set_aborted(text=msg)
+                    return
+            rospy.logwarn("Extra joints in trajectory")
 
         if not traj.points:
             msg = "Trajectory empy."
