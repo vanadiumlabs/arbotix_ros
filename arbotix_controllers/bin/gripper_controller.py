@@ -31,7 +31,7 @@ import rospy, actionlib
 import thread
 
 from control_msgs.msg import GripperCommandAction
-from sensor_msgs.msg import JointStates
+from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 from math import asin
 
@@ -155,7 +155,7 @@ class GripperActionController:
             self.model = TrapezoidGripperModel()
         elif model == 'parallel':
             self.model = ParallelGripperModel()
-        elif model == 'singlesingle':
+        elif model == 'singlesided':
             self.model = OneSideGripperModel()
         else:
             rospy.logerr('unknown model specified, exiting')
@@ -166,7 +166,7 @@ class GripperActionController:
         self.max_opening = rospy.get_param('~max', 2*self.model.finger_length)
 
         # subscribe to joint_states
-        rospy.Subscriber('joint_states', JointStates, self.stateCb)
+        rospy.Subscriber('joint_states', JointState, self.stateCb)
 
         # subscribe to command and then spin
         self.server = actionlib.SimpleActionServer('~gripper_action', GripperCommandAction, execute_cb=self.actionCb, auto_start=False)
