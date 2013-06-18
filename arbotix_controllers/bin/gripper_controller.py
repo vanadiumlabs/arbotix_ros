@@ -97,10 +97,16 @@ class TrapezoidGripperModel:
 class ParallelGripperModel:
     """ One servo to open/close parallel jaws, typically via linkage. """
 
-    # TODO
+    def __init__(self):
+        self.center = rospy.get_param('~center', 0.0)
+        self.scale = rospy.get_param('~scale', 1.0)
+        self.joint = rospy.get_param('~joint', 'gripper_joint')
+
+        # publishers
+        self.pub = rospy.Publisher(self.joint+'/command', Float64)
 
     def setCommand(self, command):
-        pass
+        self.pub.publish((command.position * self.scale) + self.center)
 
     def getPosition(self, joint_states):
         return 0.0
@@ -163,7 +169,7 @@ class GripperActionController:
 
         # standard params
         self.min_opening = rospy.get_param('~min', 0.0)
-        self.max_opening = rospy.get_param('~max', 2*self.model.finger_length)
+        self.max_opening = rospy.get_param('~max', 0.09)
 
         # subscribe to joint_states
         rospy.Subscriber('joint_states', JointState, self.stateCb)
