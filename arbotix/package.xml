@@ -1,11 +1,13 @@
 <package>
   <name>arbotix</name>
-  <version>0.8.1</version>
+  <version>0.8.2</version>
   <description>ArbotiX Drivers</description>
   <author>Michael Ferguson</author>
   <maintainer email="mike@vanadiumlabs.com">Michael Ferguson</maintainer>
   <license>BSD</license>
   <url>http://ros.org/wiki/arbotix</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
 
   <run_depend>arbotix_msgs</run_depend>
   <run_depend>arbotix_python</run_depend>
