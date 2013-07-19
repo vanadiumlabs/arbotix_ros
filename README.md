@@ -10,3 +10,4 @@ Several executables are now installed in /opt/ros/groovy/bin allowing you to run
 
 Other executables have been renamed to alleviate any name collisions:
  * driver.py is now renamed arbotix_driver
+
