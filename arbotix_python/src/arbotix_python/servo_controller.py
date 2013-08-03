@@ -70,7 +70,8 @@ class DynamixelServo(Joint):
         self.desired = 0.0                      # desired position (radians)
         self.last_cmd = 0.0                     # last position sent (radians)
         self.velocity = 0.0                     # moving speed
-        self.relaxed = True                     # are we not under torque control?
+        self.enabled = True                     # can we take commands?
+        self.active = False                     # are we under torque control?
         self.last = rospy.Time.now()
 
         self.reads = 0.0                        # number of reads
@@ -83,7 +84,7 @@ class DynamixelServo(Joint):
         
         # ROS interfaces
         rospy.Subscriber(name+'/command', Float64, self.commandCb)
-        rospy.Service(name+'/relax', Relax, self.relaxCb)
+        rospy.Service(name+'/enable', Enable, self.enableCb)
 
     def interpolate(self, frame):
         """ Get the new position to move to, in ticks. """
@@ -125,17 +126,19 @@ class DynamixelServo(Joint):
             self.errors += 1
             self.total_reads += 1
             return
-        if self.relaxed:
+        if not self.active:
             self.last_cmd = self.position
 
     def setControlOutput(self, position):
         """ Set the position that controller is moving to. 
             Returns output value in ticks. """
-        ticks = self.angleToTicks(position)
-        self.desired = position
-        self.dirty = True
-        self.relaxed = False
-        return int(ticks)
+        if self.enabled:
+            ticks = self.angleToTicks(position)
+            self.desired = position
+            self.dirty = True
+            self.active = True
+            return int(ticks)
+        return -1
 
     def getDiagnostics(self):
         """ Get a diagnostics status. """
@@ -163,10 +166,10 @@ class DynamixelServo(Joint):
             self.errors = 0
         msg.values.append(KeyValue("Reads", str(self.total_reads)))
         msg.values.append(KeyValue("Error Rate", str(sum(self.total_errors)/len(self.total_errors))+"%" ))
-        if self.relaxed:
-            msg.values.append(KeyValue("Torque", "OFF"))
-        else:
+        if self.active:
             msg.values.append(KeyValue("Torque", "ON"))
+        else:
+            msg.values.append(KeyValue("Torque", "OFF"))
         return msg
 
     def angleToTicks(self, angle):
@@ -187,23 +190,28 @@ class DynamixelServo(Joint):
             angle = -1.0 * angle
         return angle        
 
-    def relaxCb(self, req):
-        """ Turn off servo torque, so that it is pose-able. """
-        if not self.device.fake:
-            self.device.disableTorque(self.id)
-        self.dirty = False
-        self.relaxed = True
-        return RelaxResponse()
+    def enableCb(self, req):
+        """ Turn on/off servo torque, so that it is pose-able. """
+        if req.enable:
+            self.enabled = True
+        else:
+            if not self.device.fake:
+                self.device.disableTorque(self.id)
+            self.dirty = False
+            self.enabled = False
+            self.active = False
+        return EnableResponse(self.enabled)
 
     def commandCb(self, req):
         """ Float64 style command input. """
-        if self.controller and self.controller.active():
-            # Under and action control, do not interfere
-            return
-        elif self.desired != req.data or self.relaxed:
-            self.dirty = True   
-            self.relaxed = False
-            self.desired = req.data
+        if self.enabled:
+            if self.controller and self.controller.active():
+                # Under and action control, do not interfere
+                return
+            elif self.desired != req.data or not self.active:
+                self.dirty = True
+                self.active = True
+                self.desired = req.data
 
 class HobbyServo(Joint):
 
