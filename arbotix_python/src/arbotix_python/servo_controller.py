@@ -84,11 +84,12 @@ class DynamixelServo(Joint):
         
         # ROS interfaces
         rospy.Subscriber(name+'/command', Float64, self.commandCb)
+        rospy.Service(name+'/relax', Relax, self.enableCb)
         rospy.Service(name+'/enable', Enable, self.enableCb)
 
     def interpolate(self, frame):
         """ Get the new position to move to, in ticks. """
-        if self.dirty:
+        if self.enabled and self.active and self.dirty:
             # compute command, limit velocity
             cmd = self.desired - self.last_cmd
             if cmd > self.max_speed/frame:
@@ -201,6 +202,14 @@ class DynamixelServo(Joint):
             self.enabled = False
             self.active = False
         return EnableResponse(self.enabled)
+
+    def relaxCb(self, req):
+        """ Turn off servo torque, so that it is pose-able. """
+        if not self.device.fake:
+            self.device.disableTorque(self.id)
+        self.dirty = False
+        self.active = False
+        return RelaxResponse()
 
     def commandCb(self, req):
         """ Float64 style command input. """
