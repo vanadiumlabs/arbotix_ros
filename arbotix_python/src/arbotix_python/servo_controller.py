@@ -84,7 +84,7 @@ class DynamixelServo(Joint):
         
         # ROS interfaces
         rospy.Subscriber(name+'/command', Float64, self.commandCb)
-        rospy.Service(name+'/relax', Relax, self.enableCb)
+        rospy.Service(name+'/relax', Relax, self.relaxCb)
         rospy.Service(name+'/enable', Enable, self.enableCb)
 
     def interpolate(self, frame):
