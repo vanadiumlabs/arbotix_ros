@@ -12,6 +12,7 @@ add_service_files(FILES
                   Enable.srv
                   Relax.srv
                   SetupChannel.srv
+                  SetSpeed.srv
                  )
 
 generate_messages(DEPENDENCIES std_msgs)
