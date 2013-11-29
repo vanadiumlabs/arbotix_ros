@@ -288,7 +288,7 @@ class ArbotiX:
     def setPosition(self, index, value):
         return self.write(index, P_GOAL_POSITION_L, [value%256, value>>8])
 
-    ## @brief Set the speed of a servo.
+    ## @brief Set the speed of a servo. Don't allow 0 which means "max speed" to a Dynamixel.
     ##
     ## @param index The ID of the device to write.
     ##
@@ -296,6 +296,7 @@ class ArbotiX:
     ##
     ## @return The error level.
     def setSpeed(self, index, value):
+        value = max(1, value)
         return self.write(index, P_GOAL_SPEED_L, [value%256, value>>8])
 
     ## @brief Get the position of a servo.
@@ -305,6 +306,18 @@ class ArbotiX:
     ## @return The servo position.
     def getPosition(self, index):
         values = self.read(index, P_PRESENT_POSITION_L, 2)
+        try:
+            return int(values[0]) + (int(values[1])<<8)
+        except:
+            return -1
+
+    ## @brief Get the speed of a servo.
+    ##
+    ## @param index The ID of the device to read.
+    ##
+    ## @return The servo speed.
+    def getSpeed(self, index):
+        values = self.read(index, P_PRESENT_SPEED_L, 2)
         try:
             return int(values[0]) + (int(values[1])<<8)
         except:
