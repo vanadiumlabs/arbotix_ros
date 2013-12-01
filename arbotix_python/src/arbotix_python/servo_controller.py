@@ -193,7 +193,7 @@ class DynamixelServo(Joint):
             angle = -1.0 * angle
         return angle
 
-    def radsToTicks(self, rads_per_sec):
+    def speedToTicks(self, rads_per_sec):
         """ Convert speed in radians per second to ticks, applying limits. """
         ticks = self.ticks * rads_per_sec / self.max_speed
         if ticks >= self.ticks:
@@ -234,12 +234,11 @@ class DynamixelServo(Joint):
                 self.desired = req.data
                 
     def setSpeedCb(self, req):
-        """ Set servo speed. Requested speed is in radians per second. """
+        """ Set servo speed. Requested speed is in radians per second.
+            Don't allow 0 which means "max speed" to a Dynamixel in joint mode. """
         if not self.device.fake:
-            ticks_per_sec = int(self.radsToTicks(req.speed))
+            ticks_per_sec = max(1, int(self.speedToTicks(req.speed)))
             self.device.setSpeed(self.id, ticks_per_sec)
-        self.dirty = False
-        self.active = False
         return SetSpeedResponse()
 
 class HobbyServo(Joint):

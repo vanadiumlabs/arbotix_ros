@@ -44,7 +44,7 @@ help = ["ArbotiX Terminal V0.1",
 "",
 "valid parameters",
 " pos - current position of a servo, 0-1023",
-" spd - current speed of a servo, 1-1023",
+" spd - current goal speed of a servo, 0-1023",
 " baud - baud rate",
 " temp - current temperature, degrees C, READ ONLY"]
 
@@ -127,7 +127,7 @@ class Terminal(ArbotiX):
                         else:
                             print self.FAIL+str(value)+self.ENDC
                     elif kmd[1] == "spd" or kmd[1] == "speed":
-                        value = self.getSpeed(int(kmd[2]))
+                        value = self.getGoalSpeed(int(kmd[2]))
                         if value >= 0:
                             print self.OKGREEN+str(value)+self.ENDC
                         else:
