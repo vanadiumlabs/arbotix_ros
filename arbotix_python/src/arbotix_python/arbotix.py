@@ -310,6 +310,30 @@ class ArbotiX:
         except:
             return -1
 
+    ## @brief Get the speed of a servo.
+    ##
+    ## @param index The ID of the device to read.
+    ##
+    ## @return The servo speed.
+    def getSpeed(self, index):
+        values = self.read(index, P_PRESENT_SPEED_L, 2)
+        try:
+            return int(values[0]) + (int(values[1])<<8)
+        except:
+            return -1
+        
+    ## @brief Get the goal speed of a servo.
+    ##
+    ## @param index The ID of the device to read.
+    ##
+    ## @return The servo goal speed.
+    def getGoalSpeed(self, index):
+        values = self.read(index, P_GOAL_SPEED_L, 2)
+        try:
+            return int(values[0]) + (int(values[1])<<8)
+        except:
+            return -1
+
     ## @brief Get the voltage of a device.
     ##
     ## @param index The ID of the device to read.
