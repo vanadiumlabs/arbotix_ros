@@ -113,6 +113,9 @@ class DynamixelServo(Joint):
                 return None
             return int(ticks)
         else:
+            if self.device.fake:
+                self.velocity = 0.0
+                self.last = rospy.Time.now()
             return None
 
     def setCurrentFeedback(self, reading):
