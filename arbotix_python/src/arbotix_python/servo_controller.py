@@ -2,7 +2,7 @@
 
 """
   servo_controller.py: classes for servo interaction
-  Copyright (c) 2011 Vanadium Labs LLC.  All right reserved.
+  Copyright (c) 2011-2013 Vanadium Labs LLC. All right reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -88,7 +88,6 @@ class DynamixelServo(Joint):
         rospy.Service(name+'/enable', Enable, self.enableCb)
         rospy.Service(name+'/set_speed', SetSpeed, self.setSpeedCb)
 
-
     def interpolate(self, frame):
         """ Get the new position to move to, in ticks. """
         if self.enabled and self.active and self.dirty:
@@ -105,11 +104,20 @@ class DynamixelServo(Joint):
             # cap movement
             if self.last_cmd == self.desired:
                 self.dirty = False
+            # when fake, need to set position/velocity here
             if self.device.fake:
+                last_angle = self.position
                 self.position = self.last_cmd
+                t = rospy.Time.now()
+                self.velocity = (self.position - last_angle)/((t - self.last).to_nsec()/1000000000.0)
+                self.last = t
                 return None
             return int(ticks)
         else:
+            # when fake, need to reset velocity to 0 here.
+            if self.device.fake:
+                self.velocity = 0.0
+                self.last = rospy.Time.now()
             return None
 
     def setCurrentFeedback(self, reading):
