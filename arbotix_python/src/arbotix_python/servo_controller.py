@@ -104,6 +104,7 @@ class DynamixelServo(Joint):
             # cap movement
             if self.last_cmd == self.desired:
                 self.dirty = False
+            # when fake, need to set position/velocity here
             if self.device.fake:
                 last_angle = self.position
                 self.position = self.last_cmd
@@ -113,6 +114,7 @@ class DynamixelServo(Joint):
                 return None
             return int(ticks)
         else:
+            # when fake, need to reset velocity to 0 here.
             if self.device.fake:
                 self.velocity = 0.0
                 self.last = rospy.Time.now()
