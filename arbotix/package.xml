@@ -1,6 +1,6 @@
 <package>
   <name>arbotix</name>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
   <description>ArbotiX Drivers</description>
   <author>Michael Ferguson</author>
   <maintainer email="mike@vanadiumlabs.com">Michael Ferguson</maintainer>

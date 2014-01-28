@@ -2,8 +2,8 @@
 Changelog for package arbotix_python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.9.1 (2014-01-28)
+------------------
 * set velocity when in sim/fake mode
 * Added set_speed service to servo controller
 * Added 'set spd' option to arbotix_terminal

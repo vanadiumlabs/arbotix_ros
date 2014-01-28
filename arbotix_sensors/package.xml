@@ -1,6 +1,6 @@
 <package>
   <name>arbotix_sensors</name>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
   <description>
     Extends the arbotix_node package with a number of more sophisticated ROS wrappers for common devices. 
   </description>

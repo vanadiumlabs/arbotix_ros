@@ -1,6 +1,6 @@
 <package>
   <name>arbotix_firmware</name>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
   <description>
     Firmware source code for ArbotiX ROS bindings.
   </description>
