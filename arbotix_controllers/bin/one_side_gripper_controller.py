@@ -39,6 +39,7 @@ class OneSideGripperController:
         open/close to a particular size opening. """
     def __init__(self):
         rospy.init_node("one_side_gripper_controller")
+        rospy.logwarn("one_side_gripper_controller.py is deprecated and will be removed in ROS Indigo, please use gripper_controller")
 
         self.pad_width = rospy.get_param("~pad_width", 0.01)
         self.finger_length = rospy.get_param("~finger_length", 0.02)
@@ -66,7 +67,7 @@ class OneSideGripperController:
         else:
             self.pub.publish(angle + self.center)
 
-if __name__=="__main__": 
+if __name__=="__main__":
     try:
         OneSideGripperController()
     except rospy.ROSInterruptException:

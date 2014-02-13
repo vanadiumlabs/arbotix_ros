@@ -39,6 +39,7 @@ class ParallelGripperController:
         open/close to a particular size opening. """
     def __init__(self):
         rospy.init_node("parallel_gripper_controller")
+        rospy.logwarn("parallel_gripper_controller.py is deprecated and will be removed in ROS Indigo, please use gripper_controller")
 
         # trapezoid model: base width connecting each gripper's rotation point
             #              + length of gripper fingers to computation point

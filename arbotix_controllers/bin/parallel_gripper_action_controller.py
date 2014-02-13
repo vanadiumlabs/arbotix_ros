@@ -38,7 +38,8 @@ class ParallelGripperActionController:
     """ A simple controller that operates two opposing servos to
         open/close to a particular size opening. """
     def __init__(self):
-        rospy.init_node('gripper_controller') #parallel_gripper_action_controller')
+        rospy.init_node('gripper_controller')
+        rospy.logwarn("parallel_gripper_action_controller.py is deprecated and will be removed in ROS Indigo, please use gripper_controller")
 
         # trapezoid model: base width connecting each gripper's rotation point
             #              + length of gripper fingers to computation point
