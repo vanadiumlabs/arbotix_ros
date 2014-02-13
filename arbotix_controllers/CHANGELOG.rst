@@ -2,8 +2,8 @@
 Changelog for package arbotix_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.9.2 (2014-02-12)
+------------------
 * cleanup gripper controllers, mark deprecations
 * Contributors: Michael Ferguson
 
