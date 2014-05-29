@@ -44,7 +44,8 @@ class TrapezoidGripperModel:
             #              = compute angles based on a desired width at comp. point
         self.pad_width = rospy.get_param('~pad_width', 0.01)
         self.finger_length = rospy.get_param('~finger_length', 0.02)
-
+        self.min_opening = rospy.get_param('~min_opening', 0.0)
+        self.max_opening = rospy.get_param('~max_opening', 0.09)
         self.center_l = rospy.get_param('~center_left', 0.0)
         self.center_r = rospy.get_param('~center_right', 0.0)
         self.invert_l = rospy.get_param('~invert_left', False)
@@ -60,7 +61,8 @@ class TrapezoidGripperModel:
     def setCommand(self, command):
         # check limits
         if command.position > self.max_opening or command.position < self.min_opening:
-            rospy.logerr("Command exceeds limits.")
+            rospy.logerr("Command (%f) exceeds opening limits (%f, %f)",
+                          command.position, self.max_opening, self.min_opening)
             return False
         # compute angles
         angle = asin((command.position - self.pad_width)/(2*self.finger_length))
@@ -120,6 +122,8 @@ class OneSideGripperModel:
     def __init__(self):
         self.pad_width = rospy.get_param('~pad_width', 0.01)
         self.finger_length = rospy.get_param('~finger_length', 0.02)
+        self.min_opening = rospy.get_param('~min_opening', 0.0)
+        self.max_opening = rospy.get_param('~max_opening', 0.09)
         self.center = rospy.get_param('~center', 0.0)
         self.invert = rospy.get_param('~invert', False)
         self.joint = rospy.get_param('~joint', 'gripper_joint')
@@ -129,6 +133,11 @@ class OneSideGripperModel:
 
     def setCommand(self, command):
         """ Take an input command of width to open gripper. """
+        # check limits
+        if command.position > self.max_opening or command.position < self.min_opening:
+            rospy.logerr("Command (%f) exceeds opening limits (%f, %f)",
+                          command.position, self.max_opening, self.min_opening)
+            return False
         # compute angle
         angle = asin((command.position - self.pad_width)/(2*self.finger_length))
         # publish message
@@ -167,10 +176,6 @@ class GripperActionController:
             rospy.logerr('unknown model specified, exiting')
             exit()
 
-        # standard params
-        self.min_opening = rospy.get_param('~min', 0.0)
-        self.max_opening = rospy.get_param('~max', 0.09)
-
         # subscribe to joint_states
         rospy.Subscriber('joint_states', JointState, self.stateCb)
 
@@ -198,7 +203,7 @@ class GripperActionController:
     def stateCb(self, msg):
         self.state = msg
 
-if __name__=='__main__': 
+if __name__=='__main__':
     try:
         GripperActionController()
     except rospy.ROSInterruptException:
