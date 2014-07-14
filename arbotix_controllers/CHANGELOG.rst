@@ -2,6 +2,12 @@
 Changelog for package arbotix_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Set queue_size=5 on all publishers
+* Check if command exceeds opening limits
+* Contributors: Jorge Santos
+
 0.9.2 (2014-02-12)
 ------------------
 * cleanup gripper controllers, mark deprecations
