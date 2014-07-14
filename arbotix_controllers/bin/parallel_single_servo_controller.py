@@ -51,7 +51,7 @@ class ParallelGripperController:
         self.invert = rospy.get_param("~invert", False)
         
         # publishers
-        self.commandPub = rospy.Publisher("gripper_joint/command", Float64)
+        self.commandPub = rospy.Publisher("gripper_joint/command", Float64, queue_size=5)
         self.br = tf.TransformBroadcaster()
     
         # current width of gripper

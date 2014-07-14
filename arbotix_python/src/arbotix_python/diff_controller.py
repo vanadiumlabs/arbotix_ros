@@ -91,7 +91,7 @@ class DiffController(Controller):
 
         # subscriptions
         rospy.Subscriber("cmd_vel", Twist, self.cmdVelCb)
-        self.odomPub = rospy.Publisher("odom",Odometry)
+        self.odomPub = rospy.Publisher("odom", Odometry, queue_size=5)
         self.odomBroadcaster = TransformBroadcaster()
 		
         rospy.loginfo("Started DiffController ("+name+"). Geometry: " + str(self.base_width) + "m wide, " + str(self.ticks_meter) + " ticks/m.")

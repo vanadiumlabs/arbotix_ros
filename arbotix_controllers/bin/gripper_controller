@@ -55,8 +55,8 @@ class TrapezoidGripperModel:
         self.right_joint = rospy.get_param('~joint_right', 'r_gripper_joint')
 
         # publishers
-        self.l_pub = rospy.Publisher(self.left_joint+'/command', Float64)
-        self.r_pub = rospy.Publisher(self.right_joint+'/command', Float64)
+        self.l_pub = rospy.Publisher(self.left_joint+'/command', Float64, queue_size=5)
+        self.r_pub = rospy.Publisher(self.right_joint+'/command', Float64, queue_size=5)
 
     def setCommand(self, command):
         # check limits
@@ -104,7 +104,7 @@ class ParallelGripperModel:
         self.joint = rospy.get_param('~joint', 'gripper_joint')
 
         # publishers
-        self.pub = rospy.Publisher(self.joint+'/command', Float64)
+        self.pub = rospy.Publisher(self.joint+'/command', Float64, queue_size=5)
 
     def setCommand(self, command):
         self.pub.publish((command.position * self.scale) + self.center)
@@ -129,7 +129,7 @@ class OneSideGripperModel:
         self.joint = rospy.get_param('~joint', 'gripper_joint')
 
         # publishers
-        self.pub = rospy.Publisher(self.joint+'/command', Float64)
+        self.pub = rospy.Publisher(self.joint+'/command', Float64, queue_size=5)
 
     def setCommand(self, command):
         """ Take an input command of width to open gripper. """

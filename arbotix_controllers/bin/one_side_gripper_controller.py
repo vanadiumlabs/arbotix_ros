@@ -47,7 +47,7 @@ class OneSideGripperController:
         self.invert = rospy.get_param("~invert", False)
 
         # publishers
-        self.pub = rospy.Publisher("gripper_joint/command", Float64)
+        self.pub = rospy.Publisher("gripper_joint/command", Float64, queue_size=5)
 
         # subscribe to command and then spin
         rospy.Subscriber("~command", Float64, self.commandCb)
