@@ -78,7 +78,7 @@ class controllerGUI(wx.Frame):
         self.turn = 0
         self.X = 0
         self.Y = 0
-        self.cmd_vel = rospy.Publisher('cmd_vel', Twist)
+        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
 
         # Move Servos
         servo = wx.StaticBox(self, -1, 'Move Servos')
@@ -100,7 +100,7 @@ class controllerGUI(wx.Frame):
             # pull angles
             min_angle, max_angle = getJointLimits(name, joint_defaults)
             # create publisher
-            self.publishers.append(rospy.Publisher(name+'/command', Float64))
+            self.publishers.append(rospy.Publisher(name+'/command', Float64, queue_size=5))
             if rospy.get_param('/arbotix/joints/'+name+'/type','dynamixel') == 'dynamixel':
                 self.relaxers.append(rospy.ServiceProxy(name+'/relax', Relax))
             else:
