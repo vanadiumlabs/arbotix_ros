@@ -2,8 +2,8 @@
 Changelog for package arbotix_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.10.0 (2014-07-14)
+-------------------
 * Set queue_size=5 on all publishers
 * Contributors: Jorge Santos
 

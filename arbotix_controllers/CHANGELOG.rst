@@ -2,8 +2,8 @@
 Changelog for package arbotix_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.10.0 (2014-07-14)
+-------------------
 * Set queue_size=5 on all publishers
 * Check if command exceeds opening limits
 * Contributors: Jorge Santos
