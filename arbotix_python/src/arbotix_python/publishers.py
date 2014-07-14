@@ -37,7 +37,7 @@ class DiagnosticsPublisher:
     def __init__(self):
         self.t_delta = rospy.Duration(1.0/rospy.get_param("~diagnostic_rate", 1.0))
         self.t_next = rospy.Time.now() + self.t_delta
-        self.pub = rospy.Publisher('diagnostics', DiagnosticArray)
+        self.pub = rospy.Publisher('diagnostics', DiagnosticArray, queue_size=5)
 
     def update(self, joints, controllers):
         """ Publish diagnostics. """    
@@ -69,7 +69,7 @@ class JointStatePublisher:
         self.t_next = rospy.Time.now() + self.t_delta
 
         # subscriber
-        self.pub = rospy.Publisher('joint_states', JointState)
+        self.pub = rospy.Publisher('joint_states', JointState, queue_size=5)
 
     def update(self, joints, controllers):
         """ publish joint states. """

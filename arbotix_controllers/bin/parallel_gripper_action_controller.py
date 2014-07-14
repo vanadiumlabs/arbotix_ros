@@ -55,8 +55,8 @@ class ParallelGripperActionController:
         self.invert_r = rospy.get_param('~invert_right', False)
 
         # publishers
-        self.l_pub = rospy.Publisher('l_gripper_joint/command', Float64)
-        self.r_pub = rospy.Publisher('r_gripper_joint/command', Float64)
+        self.l_pub = rospy.Publisher('l_gripper_joint/command', Float64, queue_size=5)
+        self.r_pub = rospy.Publisher('r_gripper_joint/command', Float64, queue_size=5)
 
         # subscribe to command and then spin
         self.server = actionlib.SimpleActionServer('~gripper_action', GripperCommandAction, execute_cb=self.actionCb, auto_start=False)

@@ -55,7 +55,7 @@ class DigitalSensor:
         self.device = device
         self.pin = pin
         self.device.setDigital(pin, value, 0)
-        self.pub = rospy.Publisher('~'+name, Digital)
+        self.pub = rospy.Publisher('~'+name, Digital, queue_size=5)
         self.t_delta = rospy.Duration(1.0/rate)
         self.t_next = rospy.Time.now() + self.t_delta
     def update(self):
@@ -72,7 +72,7 @@ class AnalogSensor:
         self.device = device
         self.pin = pin
         self.device.setDigital(pin, value, 0)
-        self.pub = rospy.Publisher('~'+name, Analog)
+        self.pub = rospy.Publisher('~'+name, Analog, queue_size=5)
         self.t_delta = rospy.Duration(1.0/rate)
         self.t_next = rospy.Time.now() + self.t_delta
     def update(self):

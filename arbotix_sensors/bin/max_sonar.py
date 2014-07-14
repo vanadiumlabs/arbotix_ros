@@ -60,7 +60,7 @@ class max_sonar:
         self.msg.max_range = self.sensor.max_range
 
         # publish/subscribe
-        self.pub = rospy.Publisher("sonar_range", Range)
+        self.pub = rospy.Publisher("sonar_range", Range, queue_size=5)
         rospy.Subscriber("arbotix/"+req.topic_name, Analog, self.readingCb)
 
         rospy.spin()
