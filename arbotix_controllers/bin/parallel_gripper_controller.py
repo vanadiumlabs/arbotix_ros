@@ -27,7 +27,6 @@
   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import roslib; roslib.load_manifest('arbotix_controllers')
 import rospy
 import thread
 
