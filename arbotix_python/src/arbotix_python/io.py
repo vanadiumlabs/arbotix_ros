@@ -68,18 +68,20 @@ class DigitalSensor:
 
 class AnalogSensor:
     """ Class for an analog input. """
-    def __init__(self, name, pin, value, rate, device):
+    def __init__(self, name, pin, value, rate, leng, device):
         self.device = device
         self.pin = pin
         self.device.setDigital(pin, value, 0)
         self.pub = rospy.Publisher('~'+name, Analog, queue_size=5)
         self.t_delta = rospy.Duration(1.0/rate)
         self.t_next = rospy.Time.now() + self.t_delta
+        self.leng = leng
     def update(self):
         if rospy.Time.now() > self.t_next:
             msg = Analog()
             msg.header.stamp = rospy.Time.now()
-            msg.value = self.device.getAnalog(self.pin)
-            self.pub.publish(msg)
+            msg.value = self.device.getAnalog(self.pin, self.leng)
+            if msg.value >= 0:
+                self.pub.publish(msg)
             self.t_next = rospy.Time.now() + self.t_delta
 

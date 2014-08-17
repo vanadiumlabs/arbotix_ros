@@ -128,7 +128,8 @@ class ArbotixROS(ArbotiX):
                     pin = rospy.get_param('~'+v+'/'+name+'/pin',1)
                     value = rospy.get_param('~'+v+'/'+name+'/value',0)
                     rate = rospy.get_param('~'+v+'/'+name+'/rate',10)
-                    self.io[name] = t(name, pin, value, rate, self)
+                    leng = rospy.get_param('~'+v+'/'+name+'/leng',1)  # just for analog sensors
+                    self.io[name] = t(name, pin, value, rate, leng, self)
         
         r = rospy.Rate(self.rate)
 
@@ -156,7 +157,7 @@ class ArbotixROS(ArbotiX):
     def analogInCb(self, req):
         # TODO: Add check, only 1 service per pin
         if not self.fake:
-            self.io[req.topic_name] = AnalogSensor(req.topic_name, req.pin, req.value, req.rate, self) 
+            self.io[req.topic_name] = AnalogSensor(req.topic_name, req.pin, req.value, req.rate, req.leng, self)
         return SetupChannelResponse()
 
     def digitalInCb(self, req):
