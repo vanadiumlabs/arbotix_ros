@@ -450,10 +450,13 @@ class ArbotiX:
     ##
     ## @param index The ID of the pin to read (0 to 7).
     ##
-    ## @return 8-bit analog value of the pin, -1 if error.
-    def getAnalog(self, index):
+    ## @param leng The number of bytes to read (1 or 2).
+    ##
+    ## @return 8-bit/16-bit analog value of the pin, -1 if error.
+    def getAnalog(self, index, leng=1):
         try:
-            return int(self.read(253, self.ANA_BASE+int(index), 1)[0])
+            val = self.read(253, self.ANA_BASE+int(index), leng)
+            return sum(val[i] << (i * 8) for i in range(leng))
         except:
             return -1
 
