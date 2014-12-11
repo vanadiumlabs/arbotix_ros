@@ -18,7 +18,7 @@
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL VANADIUM LABS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  DISCLAIMED. IN NO EVENT SHALL VANADIUM LABS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
   OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
@@ -28,6 +28,7 @@
 """
 
 import rospy
+from arbotix_python.parallel_convert import *
 from diagnostic_msgs.msg import DiagnosticArray
 from sensor_msgs.msg import JointState
 
@@ -70,6 +71,7 @@ class JointStatePublisher:
 
         # subscriber
         self.pub = rospy.Publisher('joint_states', JointState, queue_size=5)
+        self.convert = ParallelConvert()
 
     def update(self, joints, controllers):
         """ publish joint states. """
@@ -81,7 +83,11 @@ class JointStatePublisher:
             msg.velocity = list()
             for joint in joints:
                 msg.name.append(joint.name)
-                msg.position.append(joint.position)
+                # Report Prismatic joints in meters and other joints in radians
+                if joint.prismatic:
+                    msg.position.append(self.convert.angleToWidth(joint.position) )
+                else:
+                    msg.position.append(joint.position)
                 msg.velocity.append(joint.velocity)
             for controller in controllers:
                 msg.name += controller.joint_names

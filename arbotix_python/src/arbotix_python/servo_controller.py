@@ -18,7 +18,7 @@
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL VANADIUM LABS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  DISCLAIMED. IN NO EVENT SHALL VANADIUM LABS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
   OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
@@ -81,7 +81,13 @@ class DynamixelServo(Joint):
 
         self.voltage = 0.0
         self.temperature = 0.0
-        
+        self.prismatic = rospy.get_param(n + "prismatic", False)  # Prismatic joint?
+        self.tolerance = rospy.get_param(n + "tolerance", 0.05)   # Default 0.05 radians
+        if self.prismatic:
+            rospy.loginfo("Started Servo %d  %s Prismatic", self.id, name)
+        else:
+            rospy.loginfo("Started Servo %d  %s", self.id, name)
+
         # ROS interfaces
         rospy.Subscriber(name+'/command', Float64, self.commandCb)
         rospy.Service(name+'/relax', Relax, self.relaxCb)
@@ -91,6 +97,9 @@ class DynamixelServo(Joint):
     def interpolate(self, frame):
         """ Get the new position to move to, in ticks. """
         if self.enabled and self.active and self.dirty:
+            # cap movement
+            if abs(self.last_cmd - self.desired) < self.tolerance:
+                self.dirty = False
             # compute command, limit velocity
             cmd = self.desired - self.last_cmd
             if cmd > self.max_speed/frame:
@@ -101,9 +110,6 @@ class DynamixelServo(Joint):
             ticks = self.angleToTicks(self.last_cmd + cmd)
             self.last_cmd = self.ticksToAngle(ticks)
             self.speed = cmd*frame
-            # cap movement
-            if self.last_cmd == self.desired:
-                self.dirty = False
             # when fake, need to set position/velocity here
             if self.device.fake:
                 last_angle = self.position
