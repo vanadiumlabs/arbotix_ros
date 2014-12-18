@@ -154,14 +154,14 @@ class ParallelGripperModel(GripperModel):
 	# TODO - currently we only show one finger, and report twice the distance.  Opening 
 	# reports correct width but center is not correct
     def __init__(self):
-        self.convert = ParallelConvert()  # routines for conversions
         GripperModel.__init__(self)
+        self.convertor = ParallelConvert(self.joint)
 
     def widthToAngle(self, width):
-        return self.convert.widthToAngle(width)
+        return self.convertor.widthToAngle(width)
 
     def angleToWidth(self, ang):
-        return self.convert.angleToWidth(ang)
+        return self.convertor.angleToWidth(ang)
             
     def jstToWidth(self, pos):
         # For parallel gripper, joint status is already in width (m)  
@@ -183,6 +183,7 @@ class GripperActionController:
         # setup model
         try:
             model = rospy.get_param('~model')
+            self.type = model
             rospy.loginfo("Started %s Gripper Controller.", model)
         except:
             rospy.logerr('no model specified, exiting')
@@ -225,6 +226,8 @@ class GripperActionController:
             return
         # publish feedback
         while True:
+            if self.type == 'trapezodal':            # TODO handle trapezoidal
+                break   
             if self.server.is_preempt_requested():
                 self.server.set_preempted()
                 rospy.logwarn('Gripper Controller: Preempted.')

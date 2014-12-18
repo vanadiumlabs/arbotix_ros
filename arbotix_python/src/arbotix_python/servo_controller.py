@@ -37,6 +37,7 @@ from diagnostic_msgs.msg import *
 
 from ax12 import *
 from joints import *
+from arbotix_python.parallel_convert import *
 
 class DynamixelServo(Joint):
 
@@ -67,6 +68,7 @@ class DynamixelServo(Joint):
 
         self.dirty = False                      # newly updated position?
         self.position = 0.0                     # current position, as returned by servo (radians)
+        self.jst_position= 0.0                  # position to report as Joint Status
         self.desired = 0.0                      # desired position (radians)
         self.last_cmd = 0.0                     # last position sent (radians)
         self.velocity = 0.0                     # moving speed
@@ -81,12 +83,8 @@ class DynamixelServo(Joint):
 
         self.voltage = 0.0
         self.temperature = 0.0
-        self.prismatic = rospy.get_param(n + "prismatic", False)  # Prismatic joint?
         self.tolerance = rospy.get_param(n + "tolerance", 0.05)   # Default 0.05 radians
-        if self.prismatic:
-            rospy.loginfo("Started Servo %d  %s Prismatic", self.id, name)
-        else:
-            rospy.loginfo("Started Servo %d  %s", self.id, name)
+        rospy.loginfo("Started Servo %d  %s", self.id, name)
 
         # ROS interfaces
         rospy.Subscriber(name+'/command', Float64, self.commandCb)
@@ -125,6 +123,9 @@ class DynamixelServo(Joint):
                 self.velocity = 0.0
                 self.last = rospy.Time.now()
             return None
+            
+    def jstPosition(self, pos):
+        return self.ticksToAngle(pos)  # report Joint Status in radians
 
     def setCurrentFeedback(self, reading):
         """ Update angle in radians by reading from servo, or by 
@@ -134,6 +135,7 @@ class DynamixelServo(Joint):
             self.total_reads += 1
             last_angle = self.position
             self.position = self.ticksToAngle(reading)
+            self.jst_position = self.jstPosition(reading)
             # update velocity estimate
             t = rospy.Time.now()
             self.velocity = (self.position - last_angle)/((t - self.last).to_nsec()/1000000000.0)
@@ -254,6 +256,17 @@ class DynamixelServo(Joint):
             ticks_per_sec = max(1, int(self.speedToTicks(req.speed)))
             self.device.setSpeed(self.id, ticks_per_sec)
         return SetSpeedResponse()
+        
+class PrismaticDynamixelServo(DynamixelServo):
+
+    def __init__(self, device, name, ns="~joints"):
+        DynamixelServo.__init__(self, device, name)
+        self.convertor = ParallelConvert(name)
+        rospy.loginfo(name + " prismatic joint")
+                        
+    def jstPosition(self, pos):
+        return self.convertor.angleToWidth(self.ticksToAngle(pos)) # report Joint Status in meters
+        
 
 class HobbyServo(Joint):
 
@@ -371,6 +384,8 @@ class ServoController(Controller):
         for joint in device.joints.values():
             if isinstance(joint, DynamixelServo):
                 self.dynamixels.append(joint)
+            elif isinstance(joint, PrismaticDynamixelServo):
+                self.dynamixels.append(joint)
             elif isinstance(joint, HobbyServo):
                 self.hobbyservos.append(joint)
 
@@ -396,8 +411,9 @@ class ServoController(Controller):
                             try:
                                 i = synclist.index(joint.id)*2
                                 joint.setCurrentFeedback(val[i]+(val[i+1]<<8))
-                            except:
+                            except Exception as e:
                                 # not a readable servo
+                                rospy.logerr("Servo read error: " + str(e) )
                                 continue 
             else:
                 # direct connection, or other hardware with no sync_read capability

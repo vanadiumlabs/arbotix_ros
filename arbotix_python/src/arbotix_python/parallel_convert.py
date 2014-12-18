@@ -41,20 +41,22 @@ from math import asin, sin, cos, sqrt, acos
 #              || <-- offset
 #              ||finger 
 
+PRISM_PARAM_NS = "/arbotix/joints/"
 
 class ParallelConvert:
     """ For Parallel/Prismatic joint, convert Angle to Width and vice versa"""
-    def __init__(self):
-        self.r = rospy.get_param('~radius', .0078)      # Radius of servo horn
-        self.c = rospy.get_param('~connector', 0.024)   # connector from horn to finger
+    def __init__(self, joint_name):
+        ns = PRISM_PARAM_NS + joint_name + "/"
+        self.r = rospy.get_param(ns+'radius', .0078)      # Radius of servo horn
+        self.c = rospy.get_param(ns+'connector', 0.024)   # connector from horn to finger
         # offset back from connection to actual foam pad      
-        self.offset = rospy.get_param('~offset', 0.016)
+        self.offset = rospy.get_param(ns+'offset', 0.016)
 
     def widthToAngle(self, width):
         """ Convert width to servo angle """
         leg = (width / 2) + self.offset  # Remove double for two fingers and add offset
         # Law of Cosines
-        return acos ( (self.r * self.r + leg * leg - self.c * self.c) / (2 * self.r * leg) )
+        return -1 * acos ( (self.r * self.r + leg * leg - self.c * self.c) / (2 * self.r * leg) )
 
     def angleToWidth(self, ang):
         """ Convert angle to width for this gripper """
