@@ -95,8 +95,8 @@ class FollowController(Controller):
             self.server.set_succeeded()
             rospy.loginfo(self.name + ": Done.")
         elif retval == 0:
-           self.server.set_preempted(text="Goal canceled.")     
-           rospy.loginfo(self.name + ": Goal canceled.")
+            self.server.set_preempted(text="Goal canceled.")     
+            rospy.loginfo(self.name + ": Goal canceled.")
         else:
             self.server.set_aborted(text="Execution failed.")
             rospy.loginfo(self.name + ": Execution failed.")
