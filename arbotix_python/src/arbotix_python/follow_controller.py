@@ -159,12 +159,13 @@ class FollowController(Controller):
                     return 0
 
                 err = [ (d-c) for d,c in zip(desired,last) ]
+                rospy.logdebug(err)
+                
                 if sync_transition:
                     velocity = [ abs(x / (self.rate * (endtime - rospy.Time.now()).to_sec())) for x in err ]
                 else:
                     velocity = [ abs(point.velocities[k])/self.rate for k in indexes ]
                         
-                rospy.logdebug(err)
                 for i in range(len(self.joints)):
                     if err[i] > 0.001 or err[i] < -0.001:
                         cmd = err[i] 
@@ -178,7 +179,6 @@ class FollowController(Controller):
                     else:
                         velocity[i] = 0
                 r.sleep()
-                
         return 1
 
     def active(self):
