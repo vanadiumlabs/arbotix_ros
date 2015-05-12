@@ -134,14 +134,36 @@ class FollowController(Controller):
                     return 0
                 rospy.sleep(0.01)
             desired = [ point.positions[k] for k in indexes ]
-            endtime = start + point.time_from_start
+            
+            # two modes: First the transition time / total duration is specified that implies joint velocities (synchronous transition)
+            if point.time_from_start.secs > 0 or point.time_from_start.nsecs > 0:
+                sync_transition = True
+                endtime = start + point.time_from_start
+            else: # second mode: command user-defined velocity profile until desired position is reached (consider joints separately)
+                sync_transition = False
+                if not len(point.velocities)==len(self.joints):
+                    rospy.logerr("Invalid joint in trajectory: Specify either time_from_start or velocity profiles for each intermediate goal.")
+                    return -1
+                velocity = [ abs(point.velocities[k]) for k in indexes ]
+                err = [ (d-c) for d,c in zip(desired,last) ]
+                                    
+                if not all(v > 0  for e,v in zip(err,velocity) if e!=0):
+                    rospy.logerr("Specifying a nonzero joint transition with zero velocity is not possible. Cannot proceed.")
+                    return -1
+                # get maximum required endtime w.r.t. the slowest transition
+                endtime = start + rospy.Duration( max( abs(e / v) for e,v in zip(err,velocity) if v!=0 ) )
+            
             while rospy.Time.now() + rospy.Duration(0.01) < endtime:
                 # check that preempt has not been requested by the client
                 if self.server.is_preempt_requested():
                     return 0
 
                 err = [ (d-c) for d,c in zip(desired,last) ]
-                velocity = [ abs(x / (self.rate * (endtime - rospy.Time.now()).to_sec())) for x in err ]
+                if sync_transition:
+                    velocity = [ abs(x / (self.rate * (endtime - rospy.Time.now()).to_sec())) for x in err ]
+                else:
+                    velocity = [ abs(point.velocities[k])/self.rate for k in indexes ]
+                        
                 rospy.logdebug(err)
                 for i in range(len(self.joints)):
                     if err[i] > 0.001 or err[i] < -0.001:
@@ -156,6 +178,7 @@ class FollowController(Controller):
                     else:
                         velocity[i] = 0
                 r.sleep()
+                
         return 1
 
     def active(self):
