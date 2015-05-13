@@ -149,7 +149,7 @@ class FollowController(Controller):
                 velocity = [ abs(point.velocities[k]) for k in indexes ]
                 err = [ (d-c) for d,c in zip(desired,last) ]
                                     
-                if not all(v > 0  for e,v in zip(err,velocity) if e!=0):
+                if not all(v > 0  for e,v in zip(err,velocity) if e < -0.001 or e > 0.001):
                     rospy.logerr("Specifying a nonzero joint transition with zero velocity is not possible. Cannot proceed.")
                     return -1
                 # get maximum required endtime w.r.t. the slowest transition
