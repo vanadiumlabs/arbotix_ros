@@ -139,7 +139,7 @@ class FollowController(Controller):
             if point.time_from_start.secs > 0 or point.time_from_start.nsecs > 0:
                 sync_transition = True
                 if len(point.velocities)>0:
-                    rospy.logwarn("Found both a nonzero time_from_start and individual join velocities. Chosing synchronous transition w.r.t. time_from_start.")
+                    rospy.logwarn("Found both a nonzero time_from_start and individual joint velocities. Chosing synchronous transition w.r.t. time_from_start.")
                 endtime = start + point.time_from_start
             else: # second mode: command user-defined velocity profile until desired position is reached (consider joints separately)
                 sync_transition = False
