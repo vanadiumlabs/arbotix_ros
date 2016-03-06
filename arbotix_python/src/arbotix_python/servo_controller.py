@@ -374,6 +374,9 @@ class ServoController(Controller):
         self.r_delta = rospy.Duration(1.0/rospy.get_param("~read_rate", 10.0))
         self.r_next = rospy.Time.now() + self.r_delta
 
+        rospy.Service(name + '/relax_all', Relax, self.relaxCb)
+        rospy.Service(name + '/enable_all', Enable, self.enableCb)
+
     def update(self):
         """ Read servo positions, update them. """
         if rospy.Time.now() > self.r_next and not self.fake:
@@ -454,3 +457,14 @@ class ServoController(Controller):
         self.iter += 1
         return None
 
+    def enableCb(self, req):
+        """ Turn on/off all servos torque, so that they are pose-able. """
+        for joint in self.dynamixels:
+            resp = joint.enableCb(req)
+        return resp
+
+    def relaxCb(self, req):
+        """ Turn off all servos torque, so that they are pose-able. """
+        for joint in self.dynamixels:
+            resp = joint.relaxCb(req)
+        return resp
