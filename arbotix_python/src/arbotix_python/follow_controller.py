@@ -90,12 +90,17 @@ class FollowController(Controller):
             self.server.set_aborted(text=msg)
             return
 
-        if self.executeTrajectory(traj):   
+        retval = self.executeTrajectory(traj) # retval: 1: successful, 0: canceled, -1: failed
+        if retval == 1:   
             self.server.set_succeeded()
+            rospy.loginfo(self.name + ": Done.")
+        elif retval == 0:
+            self.server.set_preempted(text="Goal canceled.")     
+            rospy.loginfo(self.name + ": Goal canceled.")
         else:
             self.server.set_aborted(text="Execution failed.")
-
-        rospy.loginfo(self.name + ": Done.")
+            rospy.loginfo(self.name + ": Execution failed.")
+ 
     
     def commandCb(self, msg):
         # don't execute if executing an action
@@ -114,7 +119,7 @@ class FollowController(Controller):
             indexes = [traj.joint_names.index(joint) for joint in self.joints]
         except ValueError as val:
             rospy.logerr("Invalid joint in trajectory.")
-            return False
+            return -1
 
         # get starting timestamp, MoveIt uses 0, need to fill in
         start = traj.header.stamp
@@ -125,13 +130,44 @@ class FollowController(Controller):
         last = [ self.device.joints[joint].position for joint in self.joints ]
         for point in traj.points:
             while rospy.Time.now() + rospy.Duration(0.01) < start:
+                if self.server.is_preempt_requested():
+                    return 0
                 rospy.sleep(0.01)
             desired = [ point.positions[k] for k in indexes ]
-            endtime = start + point.time_from_start
-            while rospy.Time.now() + rospy.Duration(0.01) < endtime:
+            
+            # two modes: First the transition time / total duration is specified that implies joint velocities (synchronous transition)
+            if point.time_from_start.secs > 0 or point.time_from_start.nsecs > 0:
+                sync_transition = True
+                if len(point.velocities)>0:
+                    rospy.logwarn("Found both a nonzero time_from_start and individual joint velocities. Chosing synchronous transition w.r.t. time_from_start.")
+                endtime = start + point.time_from_start
+            else: # second mode: command user-defined velocity profile until desired position is reached (consider joints separately)
+                sync_transition = False
+                if not len(point.velocities)==len(self.joints):
+                    rospy.logerr("Invalid joint in trajectory: Specify either time_from_start or velocity profiles for each intermediate goal.")
+                    return -1
+                velocity = [ abs(point.velocities[k]) for k in indexes ]
                 err = [ (d-c) for d,c in zip(desired,last) ]
-                velocity = [ abs(x / (self.rate * (endtime - rospy.Time.now()).to_sec())) for x in err ]
+                                    
+                if not all(v > 0  for e,v in zip(err,velocity) if e < -0.001 or e > 0.001):
+                    rospy.logerr("Specifying a nonzero joint transition with zero velocity is not possible. Cannot proceed.")
+                    return -1
+                # get maximum required endtime w.r.t. the slowest transition
+                endtime = start + rospy.Duration( max( abs(e / v) for e,v in zip(err,velocity) if v!=0 ) )
+            
+            while rospy.Time.now() + rospy.Duration(0.01) < endtime:
+                # check that preempt has not been requested by the client
+                if self.server.is_preempt_requested():
+                    return 0
+
+                err = [ (d-c) for d,c in zip(desired,last) ]
                 rospy.logdebug(err)
+                
+                if sync_transition:
+                    velocity = [ abs(x / (self.rate * (endtime - rospy.Time.now()).to_sec())) for x in err ]
+                else:
+                    velocity = [ abs(point.velocities[k])/self.rate for k in indexes ]
+                        
                 for i in range(len(self.joints)):
                     if err[i] > 0.001 or err[i] < -0.001:
                         cmd = err[i] 
@@ -145,7 +181,7 @@ class FollowController(Controller):
                     else:
                         velocity[i] = 0
                 r.sleep()
-        return True
+        return 1
 
     def active(self):
         """ Is controller overriding servo internal control? """
