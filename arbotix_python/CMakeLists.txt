@@ -11,5 +11,7 @@ install(DIRECTORY demos
 )
 
 install(PROGRAMS bin/arbotix_driver
+                 bin/arbotix_gui
+                 bin/arbotix_terminal
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
