@@ -1,0 +1,15 @@
+port: /dev/ttyUSB0
+
+rate: 200
+read_rate: 150
+write_rate: 150
+
+joints: {
+    base_joint: {id: 1, max_angle: 100, min_angle: -100},
+    j1: {id: 6, max_angle: 100, min_angle: -100},
+    j2: {id: 7, max_angle: 100, min_angle: -100},
+
+}
+controllers: {
+  arm_controller: {type: follow_controller, joints: [base_joint, j1, j2], action_name: arm_controller/follow_joint_trajectory }
+}
