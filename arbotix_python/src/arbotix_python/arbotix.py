@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2008-2011 Vanadium Labs LLC. 
+# Copyright (c) 2008-2011 Vanadium Labs LLC.
 # All right reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -11,8 +11,8 @@
 #   * Redistributions in binary form must reproduce the above copyright
 #     notice, this list of conditions and the following disclaimer in the
 #     documentation and/or other materials provided with the distribution.
-#   * Neither the name of Vanadium Labs LLC nor the names of its 
-#     contributors may be used to endorse or promote products derived 
+#   * Neither the name of Vanadium Labs LLC nor the names of its
+#     contributors may be used to endorse or promote products derived
 #     from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
@@ -40,15 +40,15 @@ class ArbotiX:
     ## @brief Constructs an ArbotiX instance and opens the serial connection.
     ##
     ## @param port The name of the serial port to open.
-    ## 
-    ## @param baud The baud rate to run the port at. 
+    ##
+    ## @param baud The baud rate to run the port at.
     ##
     ## @param timeout The timeout to use for the port. When operating over a wireless link, you may need to
     ## increase this.
     def __init__(self, port="/dev/ttyUSB0",baud=115200, timeout = 0.1):
         self._mutex = thread.allocate_lock()
         self._ser = serial.Serial()
-        
+
         self._ser.baudrate = baud
         self._ser.port = port
         self._ser.timeout = timeout
@@ -59,12 +59,12 @@ class ArbotiX:
 
     ## @brief Read a dynamixel return packet in an iterative attempt.
     ##
-    ## @param mode This should be 0 to start reading packet. 
+    ## @param mode This should be 0 to start reading packet.
     ##
-    ## @return The error level returned by the device. 
+    ## @return The error level returned by the device.
     def getPacket(self, mode, id=-1, leng=-1, error=-1, params = None):
         try:
-            d = self._ser.read()     
+            d = self._ser.read()
         except Exception as e:
             print e
             return None
@@ -74,7 +74,7 @@ class ArbotiX:
 
         # now process our byte
         if mode == 0:           # get our first 0xFF
-            if ord(d) == 0xff:   
+            if ord(d) == 0xff:
                 return self.getPacket(1)
             else:
                 return self.getPacket(0)
@@ -86,11 +86,11 @@ class ArbotiX:
         elif mode == 2:         # get id
             if d != 0xff:
                 return self.getPacket(3, ord(d))
-            else:              
+            else:
                 return self.getPacket(0)
         elif mode == 3:         # get length
             return self.getPacket(4, id, ord(d))
-        elif mode == 4:         # read error    
+        elif mode == 4:         # read error
             self.error = ord(d)
             if leng == 2:
                 return self.getPacket(6, id, leng, ord(d), list())
@@ -110,7 +110,7 @@ class ArbotiX:
         # fail
         return None
 
-    ## @brief Send an instruction to the device. 
+    ## @brief Send an instruction to the device.
     ##
     ## @param index The ID of the servo to write.
     ##
@@ -123,14 +123,14 @@ class ArbotiX:
     ## @return The return packet, if read.
     def execute(self, index, ins, params, ret=True):
         values = None
-        self._mutex.acquire()  
-        try:      
+        self._mutex.acquire()
+        try:
             self._ser.flushInput()
         except Exception as e:
             print e
         length = 2 + len(params)
         checksum = 255 - ((index + length + ins + sum(params))%256)
-        try: 
+        try:
             self._ser.write(chr(0xFF)+chr(0xFF)+chr(index)+chr(length)+chr(ins))
         except Exception as e:
             print e
@@ -153,11 +153,11 @@ class ArbotiX:
             values = self.getPacket(0)
         self._mutex.release()
         return values
-    
+
     ## @brief Read values of registers.
     ##
     ## @param index The ID of the servo.
-    ## 
+    ##
     ## @param start The starting register address to begin the read at.
     ##
     ## @param length The number of bytes to read.
@@ -166,7 +166,7 @@ class ArbotiX:
     def read(self, index, start, length):
         values = self.execute(index, AX_READ_DATA, [start, length])
         if values == None:
-            return -1        
+            return -1
         else:
             return values
 
@@ -181,7 +181,7 @@ class ArbotiX:
     ## @return The error level.
     def write(self, index, start, values):
         self.execute(index, AX_WRITE_DATA, [start] + values)
-        return self.error     
+        return self.error
 
     ## @brief Write values to registers on many servos.
     ##
@@ -192,15 +192,15 @@ class ArbotiX:
     def syncWrite(self, start, values):
         output = list()
         for i in values:
-            output = output + i 
+            output = output + i
         length = len(output) + 4                # length of overall packet
-        lbytes = len(values[0])-1               # length of bytes to write to a servo               
-        self._mutex.acquire()  
-        try:      
+        lbytes = len(values[0])-1               # length of bytes to write to a servo
+        self._mutex.acquire()
+        try:
             self._ser.flushInput()
         except:
-            pass  
-        self._ser.write(chr(0xFF)+chr(0xFF)+chr(254)+chr(length)+chr(AX_SYNC_WRITE))        
+            pass
+        self._ser.write(chr(0xFF)+chr(0xFF)+chr(254)+chr(length)+chr(AX_SYNC_WRITE))
         self._ser.write(chr(start))              # start address
         self._ser.write(chr(lbytes))             # bytes to write each servo
         for i in output:
@@ -220,7 +220,7 @@ class ArbotiX:
     ## @return A list of bytes read.
     def syncRead(self, servos, start, length):
         return self.execute(0xFE, AX_SYNC_READ, [start, length] + servos )
-    
+
     ## @brief Set baud rate of a device.
     ##
     ## @param index The ID of the device to write (Note: ArbotiX is 253).
@@ -250,7 +250,7 @@ class ArbotiX:
     ##
     ## @return The error level.
     def setReturnLevel(self, index, value):
-        return self.write(index, P_RETURN_LEVEL, [value])        
+        return self.write(index, P_RETURN_LEVEL, [value])
 
     ## @brief Turn on the torque of a servo.
     ##
@@ -321,7 +321,7 @@ class ArbotiX:
             return int(values[0]) + (int(values[1])<<8)
         except:
             return -1
-        
+
     ## @brief Get the goal speed of a servo.
     ##
     ## @param index The ID of the device to read.
@@ -343,7 +343,7 @@ class ArbotiX:
         try:
             return int(self.read(index, P_PRESENT_VOLTAGE, 1)[0])/10.0
         except:
-            return -1    
+            return -1
 
     ## @brief Get the temperature of a device.
     ##
@@ -367,7 +367,7 @@ class ArbotiX:
         except:
             return True
         return d != 0
-    
+
     ## @brief Put a servo into wheel mode (continuous rotation).
     ##
     ## @param index The ID of the device to write.
@@ -378,10 +378,10 @@ class ArbotiX:
     ##
     ## @param index The ID of the device to write.
     ##
-    ## @param resolution The resolution of the encoder on the servo. NOTE: if using 
+    ## @param resolution The resolution of the encoder on the servo. NOTE: if using
     ## 12-bit resolution servos (EX-106, MX-28, etc), you must pass resolution = 12.
     ##
-    ## @return 
+    ## @return
     def disableWheelMode(self, index, resolution=10):
         resolution = (2 ** resolution) - 1
         self.write(index, P_CCW_ANGLE_LIMIT_L, [resolution%256,resolution>>8])
@@ -399,7 +399,7 @@ class ArbotiX:
     ##
     ## @param speed The speed to move at (0-1023).
     ##
-    ## @return 
+    ## @return
     def setWheelSpeed(self, index, direction, speed):
         if speed > 1023:
             speed = 1023
@@ -503,7 +503,7 @@ class ArbotiX:
     ##
     ## @param index The ID of the servo to write (0 to 7).
     ##
-    ## @param value The position of the servo in milliseconds (1500-2500). 
+    ## @param value The position of the servo in milliseconds (1500-2500).
     ## A value of 0 disables servo output.
     ##
     ## @return -1 if error.
@@ -512,6 +512,5 @@ class ArbotiX:
         if value != 0 and (value < 500 or value > 2500):
             print "ArbotiX Error: Servo value out of range:", value
         else:
-            self.write(253, self._SERVO_BASE + 2*index, [value%256, value>>8])
+            self.write(253, self.SERVO_BASE + 2*index, [value%256, value>>8])
         return 0
-

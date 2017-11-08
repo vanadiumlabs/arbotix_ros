@@ -28,13 +28,13 @@
 
 /* Build Configuration */
 #define USE_BASE            // Enable support for a mobile base
-#define USE_HW_SERVOS       // Enable only 2/8 servos, but using hardware control
+#define USE_HW_SERVOS  1     // Enable only 2/8 servos, but using hardware control
 
 #define CONTROLLER_COUNT    5
 /* Hardware Constructs */
 #include <ax12.h>
 #include <BioloidController.h>
-BioloidController controllers[CONTROLLER_COUNT];
+/* BioloidController controllers[CONTROLLER_COUNT]; */
 
 #include "ros.h"
 
