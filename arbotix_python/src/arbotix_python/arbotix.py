@@ -34,10 +34,14 @@ import serial, time, sys, thread
 from ax12 import *
 from struct import unpack
 
+## @brief ArbotiX errors. Used by now to handle broken serial connections.
+class ArbotiXException(Exception):
+    pass
+
 ## @brief This class controls an ArbotiX, USBDynamixel, or similar board through a serial connection.
 class ArbotiX:
 
-    ## @brief Constructs an ArbotiX instance and opens the serial connection.
+    ## @brief Constructs an ArbotiX instance, optionally opening the serial connection.
     ##
     ## @param port The name of the serial port to open.
     ## 
@@ -45,17 +49,38 @@ class ArbotiX:
     ##
     ## @param timeout The timeout to use for the port. When operating over a wireless link, you may need to
     ## increase this.
-    def __init__(self, port="/dev/ttyUSB0",baud=115200, timeout = 0.1):
+    ##
+    ## @param open Whether to open immediately the serial port.
+    def __init__(self, port="/dev/ttyUSB0", baud=115200, timeout=0.1, open_port=True):
         self._mutex = thread.allocate_lock()
         self._ser = serial.Serial()
         
-        self._ser.baudrate = baud
         self._ser.port = port
+        self._ser.baudrate = baud
         self._ser.timeout = timeout
-        self._ser.open()
+
+        if open_port:
+            self._ser.open()
 
         ## The last error level read back
         self.error = 0
+
+    def __write__(self, msg):
+        try:
+            self._ser.write(msg)
+        except serial.SerialException as e:
+            self._mutex.release()
+            raise ArbotiXException(e)
+
+    def openPort(self):
+        self._ser.close()
+        try:
+            self._ser.open()
+        except serial.SerialException as e:
+            raise ArbotiXException(e)
+
+    def closePort(self):
+        self._ser.close()
 
     ## @brief Read a dynamixel return packet in an iterative attempt.
     ##
@@ -130,25 +155,10 @@ class ArbotiX:
             print e
         length = 2 + len(params)
         checksum = 255 - ((index + length + ins + sum(params))%256)
-        try: 
-            self._ser.write(chr(0xFF)+chr(0xFF)+chr(index)+chr(length)+chr(ins))
-        except Exception as e:
-            print e
-            self._mutex.release()
-            return None
+        self.__write__(chr(0xFF)+chr(0xFF)+chr(index)+chr(length)+chr(ins))
         for val in params:
-            try:
-                self._ser.write(chr(val))
-            except Exception as e:
-                print e
-                self._mutex.release()
-                return None
-        try:
-            self._ser.write(chr(checksum))
-        except Exception as e:
-            print e
-            self._mutex.release()
-            return None
+            self.__write__(chr(val))
+        self.__write__(chr(checksum))
         if ret:
             values = self.getPacket(0)
         self._mutex.release()
@@ -200,13 +210,13 @@ class ArbotiX:
             self._ser.flushInput()
         except:
             pass  
-        self._ser.write(chr(0xFF)+chr(0xFF)+chr(254)+chr(length)+chr(AX_SYNC_WRITE))        
-        self._ser.write(chr(start))              # start address
-        self._ser.write(chr(lbytes))             # bytes to write each servo
+        self.__write__(chr(0xFF)+chr(0xFF)+chr(254)+chr(length)+chr(AX_SYNC_WRITE))
+        self.__write__(chr(start))              # start address
+        self.__write__(chr(lbytes))             # bytes to write each servo
         for i in output:
-            self._ser.write(chr(i))
+            self.__write__(chr(i))
         checksum = 255 - ((254 + length + AX_SYNC_WRITE + start + lbytes + sum(output))%256)
-        self._ser.write(chr(checksum))
+        self.__write__(chr(checksum))
         self._mutex.release()
 
     ## @brief Read values of registers on many servos.

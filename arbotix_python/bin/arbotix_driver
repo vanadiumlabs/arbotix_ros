@@ -33,7 +33,7 @@ import sys
 from arbotix_msgs.msg import *
 from arbotix_msgs.srv import *
 
-from arbotix_python.arbotix import ArbotiX
+from arbotix_python.arbotix import ArbotiX, ArbotiXException
 from arbotix_python.diff_controller import DiffController
 from arbotix_python.follow_controller import FollowController
 from arbotix_python.servo_controller import *
@@ -58,6 +58,7 @@ class ArbotixROS(ArbotiX):
         # load configurations    
         port = rospy.get_param("~port", "/dev/ttyUSB0")
         baud = int(rospy.get_param("~baud", "115200"))
+        timeout = float(rospy.get_param("~timeout", "0.1"))
 
         self.rate = rospy.get_param("~rate", 100.0)
         self.fake = rospy.get_param("~sim", False)
@@ -69,11 +70,10 @@ class ArbotixROS(ArbotiX):
         self.diagnostics = DiagnosticsPublisher()
         self.joint_state_publisher = JointStatePublisher()
 
-        # start an arbotix driver
+        # start an arbotix driver; differ port opening to properly handle connection failures
         if not self.fake:
-            ArbotiX.__init__(self, port, baud)        
-            rospy.sleep(1.0)
-            rospy.loginfo("Started ArbotiX connection on port " + port + ".")
+            ArbotiX.__init__(self, port, baud, timeout, open_port=True)
+            self.connectArbotiX()
         else:
             rospy.loginfo("ArbotiX being simulated.")
 
@@ -108,7 +108,7 @@ class ArbotixROS(ArbotiX):
                 pause = True
             if pause:
                 while self.getDigital(1) == -1 and not rospy.is_shutdown():
-                    rospy.loginfo("Waiting for response...")
+                    rospy.loginfo("ArbotiX: waiting for response...")
                     rospy.sleep(0.25)
             rospy.loginfo("ArbotiX connected.")
 
@@ -135,24 +135,33 @@ class ArbotixROS(ArbotiX):
 
         # main loop -- do all the read/write here
         while not rospy.is_shutdown():
+            try:
+                # update controllers
+                for controller in self.controllers:
+                    controller.update()
     
-            # update controllers
-            for controller in self.controllers:
-                controller.update()
-
-            # update io
-            for io in self.io.values():
-                io.update()
-
-            # publish feedback
-            self.joint_state_publisher.update(self.joints.values(), self.controllers)
-            self.diagnostics.update(self.joints.values(), self.controllers)
+                # update io
+                for io in self.io.values():
+                    io.update()
+    
+                # publish feedback
+                self.joint_state_publisher.update(self.joints.values(), self.controllers)
+                self.diagnostics.update(self.joints.values(), self.controllers)
+            except ArbotiXException as e:
+                # We assume this is a serial connection error (as is the only use of
+                # ArbotiXException by now...); try to reconnect to solve the issue 
+                rospy.logerr("ArbotiX error: %s", e)
+                self.connectArbotiX()
 
             r.sleep()
 
         # do shutdown
         for controller in self.controllers:
             controller.shutdown()
+        
+        # disconnect from the ArbotiX 
+        if not self.fake:
+          self.closePort()
 
     def analogInCb(self, req):
         # TODO: Add check, only 1 service per pin
@@ -169,6 +178,19 @@ class ArbotixROS(ArbotiX):
         if not self.fake:
             self.io[req.topic_name] = DigitalServo(req.topic_name, req.pin, req.value, req.rate, self) 
         return SetupChannelResponse()
+
+    def connectArbotiX(self):
+        iter = 0
+        while True:
+            try:
+                self.openPort()
+                rospy.loginfo("Started ArbotiX connection on port " + self._ser.port + ".")
+                return
+            except ArbotiXException as e:
+                if iter%4 == 0:
+                    rospy.logerr("Unable to connect to ArbotiX: %s.", e)
+                rospy.sleep(0.5)
+                iter += 1
 
 
 if __name__ == "__main__":
