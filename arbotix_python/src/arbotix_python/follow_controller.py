@@ -90,12 +90,17 @@ class FollowController(Controller):
             self.server.set_aborted(text=msg)
             return
 
-        if self.executeTrajectory(traj):   
+        retval = self.executeTrajectory(traj) # retval: 1: successful, 0: canceled, -1: failed
+        if retval == 1:   
             self.server.set_succeeded()
+            rospy.loginfo(self.name + ": Done.")
+        elif retval == 0:
+            self.server.set_preempted(text="Goal canceled.")     
+            rospy.loginfo(self.name + ": Goal canceled.")
         else:
             self.server.set_aborted(text="Execution failed.")
-
-        rospy.loginfo(self.name + ": Done.")
+            rospy.loginfo(self.name + ": Execution failed.")
+ 
     
     def commandCb(self, msg):
         # don't execute if executing an action
@@ -114,7 +119,7 @@ class FollowController(Controller):
             indexes = [traj.joint_names.index(joint) for joint in self.joints]
         except ValueError as val:
             rospy.logerr("Invalid joint in trajectory.")
-            return False
+            return -1
 
         # get starting timestamp, MoveIt uses 0, need to fill in
         start = traj.header.stamp
@@ -125,10 +130,16 @@ class FollowController(Controller):
         last = [ self.device.joints[joint].position for joint in self.joints ]
         for point in traj.points:
             while rospy.Time.now() + rospy.Duration(0.01) < start:
+                if self.server.is_preempt_requested():
+                    return 0
                 rospy.sleep(0.01)
             desired = [ point.positions[k] for k in indexes ]
             endtime = start + point.time_from_start
             while rospy.Time.now() + rospy.Duration(0.01) < endtime:
+                # check that preempt has not been requested by the client
+                if self.server.is_preempt_requested():
+                    return 0
+
                 err = [ (d-c) for d,c in zip(desired,last) ]
                 velocity = [ abs(x / (self.rate * (endtime - rospy.Time.now()).to_sec())) for x in err ]
                 rospy.logdebug(err)
@@ -145,7 +156,7 @@ class FollowController(Controller):
                     else:
                         velocity[i] = 0
                 r.sleep()
-        return True
+        return 1
 
     def active(self):
         """ Is controller overriding servo internal control? """
