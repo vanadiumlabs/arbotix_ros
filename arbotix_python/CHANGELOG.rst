@@ -2,13 +2,6 @@
 Changelog for package arbotix_python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.11.0 (2020-12-25)
--------------------
-* migrate arbotix_python codebase to work with ROS Noetic
-* common python3-fixes like print, imports, exceptions etc. 
-* update depends in package.xml
-* Contributors: Murat Calis
-
 0.10.0 (2014-07-14)
 -------------------
 * Set queue_size=5 on all publishers
