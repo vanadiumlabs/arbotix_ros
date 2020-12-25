@@ -59,31 +59,30 @@ class Terminal(ArbotiX):
     def __init__(self, port = "/dev/ttyUSB0", baud = 115200):
         # start
         ArbotiX.__init__(self, port, baud)  
-        print "ArbotiX Terminal --- Version 0.1"
-        print "Copyright 2011 Vanadium Labs LLC"
+        print("ArbotiX Terminal --- Version 0.1")
+        print("Copyright 2011 Vanadium Labs LLC")
 
         # loop
         while True:
-            print ">> ",
-            kmd = raw_input().split(" ")
+            kmd = input(f">> ").split(" ")
             try:
                 if kmd[0] == "help":        # display help data
                     if len(kmd) > 1:        # for a particular command
                         if kmd[1] == "ls":   
-                            print help[3]
+                            print(help[3])
                         elif kmd[1] == "mv":
-                            print help[4]
+                            print(help[4])
                         elif kmd[1] == "baud":
-                            print help[5]
+                            print(help[5])
                         elif kmd[1] == "get":
-                            print help[6]
+                            print(help[6])
                         elif kmd[1] == "set":   
-                            print help[7]
+                            print(help[7])
                         else:
-                            print "help: unrecognized command"
+                            print("help: unrecognized command")
                     else:
                         for h in help:
-                            print h
+                            print(h)
 
                 elif kmd[0] == "ls":       # list servos
                     self._ser.timeout = 0.25
@@ -94,47 +93,47 @@ class Terminal(ArbotiX):
 
                 elif kmd[0] == "mv":         # rename a servo
                     if self.write( int(kmd[1]), P_ID, [int(kmd[2]),] ) == 0:
-                        print self.OKBLUE+"OK"+self.ENDC
+                        print(self.OKBLUE+"OK"+self.ENDC)
 
                 elif kmd[0] == "baud":      # set bus baud rate
                     self.write(253, P_BAUD_RATE, [self.convertBaud(int(kmd[1]))])
-                    print self.OKBLUE+"OK"+self.ENDC
+                    print(self.OKBLUE+"OK"+self.ENDC)
 
                 elif kmd[0] == "set":
                     if kmd[1] == "baud":
                         self.write( int(kmd[2]), P_BAUD_RATE, [self.convertBaud(int(kmd[3]))] )
-                        print self.OKBLUE+"OK"+self.ENDC
+                        print(self.OKBLUE+"OK"+self.ENDC)
                     elif kmd[1] == "pos" or kmd[1] == "position":
                         self.setPosition( int(kmd[2]), int(kmd[3]) )
-                        print self.OKBLUE+"OK"+self.ENDC
+                        print(self.OKBLUE+"OK"+self.ENDC)
                     elif kmd[1] == "spd" or kmd[1] == "speed":
                         self.setSpeed( int(kmd[2]), int(kmd[3]) )
-                        print self.OKBLUE+"OK"+self.ENDC
+                        print(self.OKBLUE+"OK"+self.ENDC)
 
                 elif kmd[0] == "get":
                     if kmd[1] == "temp":
                         value = self.getTemperature(int(kmd[2]))
                         if value >= 60 or value < 0:
-                            print self.FAIL+str(value)+self.ENDC
+                            print(self.FAIL+str(value)+self.ENDC)
                         elif value > 40:
-                            print self.WARNING+str(value)+self.ENDC
+                            print(self.WARNING+str(value)+self.ENDC)
                         else:
-                            print self.OKGREEN+str(value)+self.ENDC
+                            print(self.OKGREEN+str(value)+self.ENDC)
                     elif kmd[1] == "pos" or kmd[1] == "position":
                         value = self.getPosition(int(kmd[2]))
                         if value >= 0:
-                            print self.OKGREEN+str(value)+self.ENDC
+                            print(self.OKGREEN+str(value)+self.ENDC)
                         else:
-                            print self.FAIL+str(value)+self.ENDC
+                            print(self.FAIL+str(value)+self.ENDC)
                     elif kmd[1] == "spd" or kmd[1] == "speed":
                         value = self.getGoalSpeed(int(kmd[2]))
                         if value >= 0:
-                            print self.OKGREEN+str(value)+self.ENDC
+                            print(self.OKGREEN+str(value)+self.ENDC)
                         else:
-                            print self.FAIL+str(value)+self.ENDC
+                            print(self.FAIL+str(value)+self.ENDC)
         
             except Exception as e:
-                print "error...", e
+                print("error...", e)
 
     def query(self, max_id = 18, baud = 1000000):
         k = 0                   # how many id's have we printed
@@ -142,17 +141,17 @@ class Terminal(ArbotiX):
             if self.getPosition(i+1) != -1:
                 if k > 8:
                     k = 0
-                    print ""
-                print repr(i+1).rjust(4),
+                    print("")
+                print(repr(i+1).rjust(4), end="\t"),
                 k = k + 1
             else:
                 if k > 8:
                     k = 0
-                    print ""
-                print "....",
+                    print("")
+                print(" ....", end="\t")
                 k = k + 1
             sys.stdout.flush()
-        print ""
+        print("")
 
     def convertBaud(self, b):
         if b == 500000:
@@ -184,6 +183,6 @@ if __name__ == "__main__":
         else:
             t = Terminal()
     except KeyboardInterrupt:
-        print "\nExiting..."
+        print("\nExiting...")
 
 

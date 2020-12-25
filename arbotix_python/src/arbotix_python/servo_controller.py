@@ -35,8 +35,8 @@ from std_msgs.msg import Float64
 from arbotix_msgs.srv import *
 from diagnostic_msgs.msg import *
 
-from ax12 import *
-from joints import *
+from arbotix_python.ax12 import *
+from arbotix_python.joints import *
 
 class DynamixelServo(Joint):
 
@@ -351,7 +351,7 @@ class HobbyServo(Joint):
             self.desired = req.data
 
 
-from controllers import *
+from arbotix_python.controllers import *
 
 class ServoController(Controller):
 

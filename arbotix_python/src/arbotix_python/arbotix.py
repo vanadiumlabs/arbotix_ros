@@ -30,9 +30,9 @@
 
 ## @file arbotix.py Low-level code to control an ArbotiX.
 
-import serial, time, sys, thread
-from ax12 import *
-from struct import unpack
+import serial, time, sys, threading
+from arbotix_python.ax12 import *
+from struct import unpack, pack
 
 ## @brief ArbotiX errors. Used by now to handle broken serial connections.
 class ArbotiXException(Exception):
@@ -52,7 +52,7 @@ class ArbotiX:
     ##
     ## @param open Whether to open immediately the serial port.
     def __init__(self, port="/dev/ttyUSB0", baud=115200, timeout=0.1, open_port=True):
-        self._mutex = thread.allocate_lock()
+        self._mutex = threading._allocate_lock()
         self._ser = serial.Serial()
         
         self._ser.port = port
@@ -89,34 +89,34 @@ class ArbotiX:
     ## @return The error level returned by the device. 
     def getPacket(self, mode, id=-1, leng=-1, error=-1, params = None):
         try:
-            d = self._ser.read()     
+            d = self._ser.read()
         except Exception as e:
-            print e
+            print(e)
             return None
         # need a positive byte
-        if d == '':
+        if not d or d == '':
             return None
 
         # now process our byte
         if mode == 0:           # get our first 0xFF
-            if ord(d) == 0xff:   
+            if d == b'\xff':   
                 return self.getPacket(1)
             else:
                 return self.getPacket(0)
         elif mode == 1:         # get our second 0xFF
-            if ord(d) == 0xff:
+            if d == b'\xff':
                 return self.getPacket(2)
             else:
                 return self.getPacket(0)
         elif mode == 2:         # get id
-            if d != 0xff:
+            if d != b'\xff':
                 return self.getPacket(3, ord(d))
             else:              
                 return self.getPacket(0)
         elif mode == 3:         # get length
             return self.getPacket(4, id, ord(d))
         elif mode == 4:         # read error    
-            self.error = ord(d)
+            self.error = d
             if leng == 2:
                 return self.getPacket(6, id, leng, ord(d), list())
             else:
@@ -152,13 +152,19 @@ class ArbotiX:
         try:      
             self._ser.flushInput()
         except Exception as e:
-            print e
+            print(e)
         length = 2 + len(params)
         checksum = 255 - ((index + length + ins + sum(params))%256)
-        self.__write__(chr(0xFF)+chr(0xFF)+chr(index)+chr(length)+chr(ins))
+        packet = bytearray()
+        packet.append(0xFF)
+        packet.append(0xFF)
+        packet.append(index)
+        packet.append(length)
+        packet.append(ins)
+        self.__write__(packet)
         for val in params:
-            self.__write__(chr(val))
-        self.__write__(chr(checksum))
+            self.__write__(bytes([val]))
+        self.__write__(bytes([checksum]))
         if ret:
             values = self.getPacket(0)
         self._mutex.release()
@@ -210,13 +216,19 @@ class ArbotiX:
             self._ser.flushInput()
         except:
             pass  
-        self.__write__(chr(0xFF)+chr(0xFF)+chr(254)+chr(length)+chr(AX_SYNC_WRITE))
-        self.__write__(chr(start))              # start address
-        self.__write__(chr(lbytes))             # bytes to write each servo
+        packet = bytearray()
+        packet.append(0xFF)
+        packet.append(0xFF)
+        packet.append(254)
+        packet.append(length)
+        packet.append(AX_SYNC_WRITE)
+        self.__write__(packet)
+        self.__write__(bytes([start]))              # start address
+        self.__write__(bytes([lbytes]))             # bytes to write each servo
         for i in output:
-            self.__write__(chr(i))
+            self.__write__(bytes([i]))
         checksum = 255 - ((254 + length + AX_SYNC_WRITE + start + lbytes + sum(output))%256)
-        self.__write__(chr(checksum))
+        self.__write__(bytes([checksum]))
         self._mutex.release()
 
     ## @brief Read values of registers on many servos.
@@ -520,7 +532,7 @@ class ArbotiX:
     def setServo(self, index, value):
         if index > 7: return -1
         if value != 0 and (value < 500 or value > 2500):
-            print "ArbotiX Error: Servo value out of range:", value
+            print("ArbotiX Error: Servo value out of range:", value)
         else:
             self.write(253, self._SERVO_BASE + 2*index, [value%256, value>>8])
         return 0
