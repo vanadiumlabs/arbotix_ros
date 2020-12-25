@@ -37,8 +37,8 @@ from nav_msgs.msg import Odometry
 from diagnostic_msgs.msg import *
 from tf.broadcaster import TransformBroadcaster
 
-from ax12 import *
-from controllers import *
+from arbotix_python.ax12 import *
+from arbotix_python.controllers import *
 from struct import unpack
 
 class DiffController(Controller):

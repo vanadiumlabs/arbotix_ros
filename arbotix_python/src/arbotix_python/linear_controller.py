@@ -29,8 +29,8 @@
 
 import rospy, actionlib
 
-from joints import *
-from controllers import *
+from arbotix_python.joints import *
+from arbotix_python.controllers import *
 from std_msgs.msg import Float64
 from diagnostic_msgs.msg import *
 from std_srvs.srv import *
@@ -172,7 +172,7 @@ class LinearControllerAbsolute(Controller):
                         self.last_reading = self.getPosition()
                         self.joint.setCurrentFeedback(self.last_reading)
                     except Exception as e:
-                        print "linear error: ", e
+                        print("linear error: ", e)
                 # update movement
                 output = self.joint.interpolate(1.0/self.delta.to_sec())
                 if self.last != output and not self.fake: 

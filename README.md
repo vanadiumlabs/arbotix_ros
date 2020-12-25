@@ -1,6 +1,6 @@
 ## Arbotix Drivers
 
-This repository contains the Arbotix ROS drivers, catkinized, and ready for ROS Groovy and newer.
+This repository contains the Arbotix ROS drivers, catkinized, and ready for ROS Noetic.
 
 ## Changes for Groovy (version 0.8.x)
 

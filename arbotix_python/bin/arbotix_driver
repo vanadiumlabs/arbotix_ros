@@ -129,7 +129,10 @@ class ArbotixROS(ArbotiX):
                     value = rospy.get_param('~'+v+'/'+name+'/value',0)
                     rate = rospy.get_param('~'+v+'/'+name+'/rate',10)
                     leng = rospy.get_param('~'+v+'/'+name+'/length',1)  # just for analog sensors
-                    self.io[name] = t(name, pin, value, rate, leng, self)
+                    if(v != "analog_sensors"):
+                        self.io[name] = t(name, pin, value, rate, self)
+                    else:
+                        self.io[name] = t(name, pin, value, rate, leng, self)
         
         r = rospy.Rate(self.rate)
 
