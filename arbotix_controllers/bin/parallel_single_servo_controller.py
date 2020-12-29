@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
   parallel_single_servo_controller.py - controls a single-servo parallel-jaw gripper

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
   linear_controller.py - controller for a linear actuator with analog feedback
