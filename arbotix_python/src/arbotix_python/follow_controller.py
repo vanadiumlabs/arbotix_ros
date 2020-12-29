@@ -33,8 +33,8 @@ from control_msgs.msg import FollowJointTrajectoryAction
 from trajectory_msgs.msg import JointTrajectory
 from diagnostic_msgs.msg import *
 
-from ax12 import *
-from controllers import *
+from arbotix_python.ax12 import *
+from arbotix_python.controllers import *
 
 class FollowController(Controller):
     """ A controller for joint chains, exposing a FollowJointTrajectory action. """

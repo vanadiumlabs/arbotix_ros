@@ -1,4 +1,4 @@
-<package>
+<package format="3">
   <name>arbotix_python</name>
   <version>0.10.0</version>
   <description>
@@ -11,16 +11,16 @@
   
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>rospy</run_depend>
-  <run_depend>tf</run_depend>
-  <run_depend>arbotix_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>diagnostic_msgs</run_depend>
-  <run_depend>control_msgs</run_depend>
-  <run_depend>nav_msgs</run_depend>
-  <run_depend>actionlib</run_depend>
-  <run_depend>python-serial</run_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>arbotix_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+  <exec_depend>control_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>actionlib</exec_depend>
+  <exec_depend>python-serial</exec_depend>
 </package>
 
 
