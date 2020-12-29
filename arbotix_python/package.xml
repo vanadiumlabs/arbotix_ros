@@ -20,7 +20,5 @@
   <exec_depend>control_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>actionlib</exec_depend>
-  <exec_depend>python-serial</exec_depend>
+  <exec_depend>python3-serial</exec_depend>
 </package>
-
-

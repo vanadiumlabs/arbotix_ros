@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
   io.py - ROS wrappers for ArbotiX I/O

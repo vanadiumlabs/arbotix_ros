@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
   parallel_gripper_controller.py - controls a gripper built of two servos

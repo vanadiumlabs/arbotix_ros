@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
   one_side_gripper_controller.py - controls a gripper built with one servo
