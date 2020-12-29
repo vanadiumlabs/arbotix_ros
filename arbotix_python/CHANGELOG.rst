@@ -2,8 +2,8 @@
 Changelog for package arbotix_python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-12-29)
+-------------------
 * Update all python shebangs to python3 + rosdep dependency (`#48 <https://github.com/vanadiumlabs/arbotix_ros/issues/48>`_)
   Co-authored-by: Murat Calis <mc@pirate-robotics.net>
 * arbotix_python for ROS Noetic (`#46 <https://github.com/vanadiumlabs/arbotix_ros/issues/46>`_)

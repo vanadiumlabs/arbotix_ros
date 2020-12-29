@@ -2,8 +2,8 @@
 Changelog for package arbotix_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-12-29)
+-------------------
 * Merge pull request `#25 <https://github.com/vanadiumlabs/arbotix_ros/issues/25>`_ from corot/indigo-devel
   Implement issue https://github.com/vanadiumlabs/arbotix_ros/issues/24:
 * Implement issue https://github.com/vanadiumlabs/arbotix_ros/issues/24:

@@ -2,8 +2,8 @@
 Changelog for package arbotix_sensors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.11.0 (2020-12-29)
+-------------------
 * Update all python shebangs to python3 + rosdep dependency (`#48 <https://github.com/vanadiumlabs/arbotix_ros/issues/48>`_)
   Co-authored-by: Murat Calis <mc@pirate-robotics.net>
 * Merge pull request `#22 <https://github.com/vanadiumlabs/arbotix_ros/issues/22>`_ from corot/indigo-devel
