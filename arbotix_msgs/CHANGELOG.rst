@@ -2,6 +2,15 @@
 Changelog for package arbotix_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#25 <https://github.com/vanadiumlabs/arbotix_ros/issues/25>`_ from corot/indigo-devel
+  Implement issue https://github.com/vanadiumlabs/arbotix_ros/issues/24:
+* Implement issue https://github.com/vanadiumlabs/arbotix_ros/issues/24:
+  Allow 16 bit values on arbotix_msgs/Analog messages, but assume 8 bits
+  by default
+* Contributors: Michael Ferguson, corot
+
 0.10.0 (2014-07-14)
 -------------------
 

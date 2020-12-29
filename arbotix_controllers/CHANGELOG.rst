@@ -2,6 +2,15 @@
 Changelog for package arbotix_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update all python shebangs to python3 + rosdep dependency (`#48 <https://github.com/vanadiumlabs/arbotix_ros/issues/48>`_)
+  Co-authored-by: Murat Calis <mc@pirate-robotics.net>
+* Merge pull request `#22 <https://github.com/vanadiumlabs/arbotix_ros/issues/22>`_ from corot/indigo-devel
+  roslib.load_manifest should not be used on catkin packages
+* roslib.load_manifest should not be used on catkin packages according to http://wiki.ros.org/PyStyleGuide
+* Contributors: Jorge Santos, Michael Ferguson, calismurat
+
 0.10.0 (2014-07-14)
 -------------------
 * Set queue_size=5 on all publishers

@@ -2,6 +2,9 @@
 Changelog for package arbotix_firmware
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.10.0 (2014-07-14)
 -------------------
 
