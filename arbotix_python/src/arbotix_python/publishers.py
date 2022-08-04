@@ -81,7 +81,7 @@ class JointStatePublisher:
             msg.velocity = list()
             for joint in joints:
                 msg.name.append(joint.name)
-                msg.position.append(joint.position)
+                msg.position.append(joint.jst_position)
                 msg.velocity.append(joint.velocity)
             for controller in controllers:
                 msg.name += controller.joint_names

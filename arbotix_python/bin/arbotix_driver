@@ -83,10 +83,14 @@ class ArbotixROS(ArbotiX):
             joint_type = rospy.get_param("~joints/"+name+"/type", "dynamixel")
             if joint_type == "dynamixel":
                 self.joints[name] = DynamixelServo(self, name)
+            elif joint_type == "prismatic":
+                self.joints[name] = PrismaticDynamixelServo(self, name)
             elif joint_type == "hobby_servo":
                 self.joints[name] = HobbyServo(self, name)
             elif joint_type == "calibrated_linear":
                 self.joints[name] = LinearJoint(self, name)
+            else:
+                rospy.logerr("Unknown joint type [%s] for joints/%s", joint_type, name )
 
         # setup controller
         self.controllers = [ServoController(self, "servos"), ]
